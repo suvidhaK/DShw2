@@ -44,11 +44,10 @@ class ReceiverThread extends Thread {
         ObjectInputStream ois = new ObjectInputStream(bais);
         RMessage msgReceived = (RMessage) ois.readObject();
 
-        String id = dgp.getAddress().toString() + dgp.getPort();
-        msgReceived.setSenderIP(dgp.getAddress().toString());
+        String id = dgp.getSocketAddress().toString().split("/")[1];
+        msgReceived.setSenderIP(dgp.getAddress().toString().split("/")[1]);
         msgReceived.setSenderPort(dgp.getPort());
 
-        Debugger.print(3, "Id of the incomming msg: " + id);
         if (msgReceived.isAck()) {
           Debugger.print(
               1,
@@ -78,6 +77,7 @@ class ReceiverThread extends Thread {
         }
         // Not Ack
         else {
+          Debugger.print(1, "Id of the incomming msg: " + id);
           short msgSeqNum = msgReceived.getSeqNo();
           // Frame is as expected, within receiver window size limits.
           int start = rChannel.getRecvSeqNo(id);
@@ -89,12 +89,8 @@ class ReceiverThread extends Thread {
             synchronized (rChannel.receiveBuffer) {
               rChannel.receiveBuffer.add(msgReceived);
             }
-            Debugger.print(1,
-                "Msg Recvd: " + msgReceived.toString() + ", from address: "
-                    + dgp.getAddress() + ", port: " + dgp.getPort());
             sendACK(msgReceived, dgp);
             invokeCallBack();
-
           }
 
           // Missing ACK - Frame is already received, so just send ack.
@@ -155,7 +151,7 @@ class ReceiverThread extends Thread {
    */
   private void invokeCallBack() {
     if (!rChannel.receiveBuffer.isEmpty()) {
-      Debugger.print(3, "invoke callback");
+      Debugger.print(1, "invoke callback");
       // Invoke callback till successive messages are sequential.
 
       for (String id : rChannel.recvSeqNo.keySet()) {
@@ -171,9 +167,10 @@ class ReceiverThread extends Thread {
           rChannel.userBuffer.put(id, userBufferList);
         }
 
+        // Maintains FIFO order for splited messages
         while (itr.hasNext()) {
           RMessage msg = itr.next();
-          String msgID = msg.getSenderIP() + msg.getSenderPort();
+          String msgID = msg.getSenderIP() + ":" + msg.getSenderPort();
           if (msgID.equals(id) && expected == msg.getSeqNo()) {
             expected = (short) ((expected + 1) % Short.MAX_VALUE);
             rChannel.incRecvSeq(id);
@@ -189,7 +186,6 @@ class ReceiverThread extends Thread {
             && rChannel.reliableChannelReceiver != null) {
           while (!userBufferList.isEmpty()) {
             RMessage m = userBufferList.remove();
-            Debugger.print(3, "Receiver: Message isEnd: " + m.isEnd());
             if (m.isEnd()) {
               Message msg = new RMessage();
               msg.setMessageContents(m.getMessageContents());
@@ -198,8 +194,6 @@ class ReceiverThread extends Thread {
               RMessage next = userBufferList.peek();
               String s = next.getMessageContents();
               next.setMessageContents(m.getMessageContents() + s);
-              Debugger.print(1, "Receiver: Merging Length: "
-                  + next.getMessageContents().length());
             } else {
               userBufferList.offerFirst(m);
               break;

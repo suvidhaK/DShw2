@@ -9,7 +9,7 @@ import java.util.TreeSet;
 
 public class RChannel implements ReliableChannel {
   protected static int bufferLength = 32;
-  protected static int stringLength = 400;
+  protected static int stringLength = 1000;
   protected static int timeout = 10;
 
   protected LinkedList<RMessage> sendBuffer;
@@ -203,7 +203,7 @@ public class RChannel implements ReliableChannel {
   private boolean send(RMessage msgToSend) {
     msgToSend.setAck(false);
     String id = msgToSend.getDestinationIP();
-    id += msgToSend.getDestinationPort();
+    id += ":" + msgToSend.getDestinationPort();
     msgToSend.setSeqNo(this.getSendSeqNo(id));
     incSendSeq(id);
     synchronized (sendBuffer) {

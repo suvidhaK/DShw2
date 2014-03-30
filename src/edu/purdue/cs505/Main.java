@@ -5,25 +5,62 @@ import java.util.ArrayList;
 public final class Main {
 
   public static void main(String[] args) {
-    BroadcastReceiver receiver = new BReceiver();
+    test2();
+    return;
+  }
+
+  static public void test1() {
 
     // create processes
     ArrayList<Process> processes = new ArrayList<Process>();
-    processes.add(new Process("localhost", 3000));
-    processes.add(new Process("localhost", 4000));
-    processes.add(new Process("localhost", 6000));
-    processes.add(new Process("localhost", 5000));
-    processes.add(new Process("localhost", 7000));
-    processes.add(new Process("localhost", 8000));
-    processes.add(new Process("localhost", 9000));
+    processes.add(new Process("127.0.0.1", 3000));
+    processes.add(new Process("127.0.0.1", 4000));
+    processes.add(new Process("127.0.0.1", 5000));
 
     ArrayList<ReliableBroadcast> broadcasters = new ArrayList<ReliableBroadcast>();
-    for (Process p : processes)
-    // Process p = processes.get(0);
-    {
+    for (Process p : processes) {
       // create reliable broadcast for each process.
-      ReliableBroadcast r = new RBroadcast();
+      ReliableBroadcast r = new ReliableBroadcastClass();
+      BroadcastReceiver receiver = new TestBroadcastReceiverClass();
       r.init(p);
+      for (Process other : processes)
+        r.addProcess(other);
+
+      // attach callback
+      r.rblisten(receiver);
+      broadcasters.add(r);
+    }
+
+    try {
+      Thread.sleep(1000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    Message m = new Message();
+    String pid = new Integer(1).toString();
+    for (int i = 1; i <= 2000; i++) {
+      m.setContents("1");
+      m.setProcessID(pid);
+      broadcasters.get(0).rbroadcast(m);
+      broadcasters.get(1).rbroadcast(m);
+      broadcasters.get(2).rbroadcast(m);
+    }
+  }
+
+  static public void test2() {
+    // create processes
+    ArrayList<Process> processes = new ArrayList<Process>();
+    processes.add(new Process("127.0.0.1", 3000));
+    processes.add(new Process("127.0.0.1", 4000));
+    processes.add(new Process("127.0.0.1", 5000));
+
+    ArrayList<ReliableBroadcast> broadcasters = new ArrayList<ReliableBroadcast>();
+    for (Process p : processes) {
+      // create reliable broadcast for each process.
+      FIFOReliableBroadcast r = new FIFOReliableBroadcastClass();
+      r.init(p);
+
+      BroadcastReceiver receiver = new TestFIFOBroadcastReceiverClass();
 
       for (Process other : processes)
         r.addProcess(other);
@@ -36,14 +73,14 @@ public final class Main {
     try {
       Thread.sleep(1000);
     } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     Message m = new Message();
-    m.setContents("ok");
-    broadcasters.get(0).rbroadcast(m);
-    broadcasters.get(1).rbroadcast(m);
-    broadcasters.get(2).rbroadcast(m);
+    String pid = new Integer(1).toString();
+    for (int i = 0; i <= 10000; i++) {
+      m.setContents(new Integer(i).toString());
+      m.setProcessID(pid);
+      broadcasters.get(0).rbroadcast(m);
+    }
   }
-
 }

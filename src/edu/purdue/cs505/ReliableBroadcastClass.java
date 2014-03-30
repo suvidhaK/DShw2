@@ -6,27 +6,20 @@ import edu.purdue.cs505.RChannel.Debugger;
 import edu.purdue.cs505.RChannel.RChannel;
 import edu.purdue.cs505.RChannel.RMessage;
 
-public class RBroadcast implements ReliableBroadcast {
+public class ReliableBroadcastClass implements ReliableBroadcast {
 
   public BroadcastReceiver breceiver;
   public ArrayList<Process> processes;
   public Process currentProcess;
-  public static RBroadcast rbroadcastInstance = null;
   public ArrayList<RChannel> channels;
   public RChannel currentProcChannel;
 
-  public RBroadcast() {
-    this.rbroadcastInstance = this;
-  }
-
   public void init(Process currentProcess) {
     processes = new ArrayList<Process>();
-    this.currentProcess = currentProcess;
-    // this.channels = new ArrayList<RChannel>();
+    this.currentProcess = new Process(currentProcess);
     this.currentProcChannel = new RChannel(currentProcess.Port);
     currentProcChannel.init("", 0);
-
-    currentProcChannel.rlisten(new ReliableChannelCallback(this));
+    currentProcChannel.rlisten(new ReliableChannelReceiverCallbackClass(this));
   }
 
   /*
@@ -45,22 +38,27 @@ public class RBroadcast implements ReliableBroadcast {
     Message m = new Message();
     m.setContents(msg.serializeMessage());
 
-    // if (!currentProcess.delivered.contains(m)) {
-    // If Current process is the broadcaster, set pid and seqNum
-    // if (m.processID == null || m.messageNumber == 0) {
     m.messageNumber = currentProcess.getNextSeqNum();
     m.processID = currentProcess.getProcessID();
-    // }
     reRbroadcast(m);
     Debugger.print(3, "Calling BReceiver callback from process: "
         + currentProcess.getProcessID());
-    breceiver.rdeliver(msg);
-    currentProcess.delivered.add(msg);
+    synchronized (currentProcess.delivered) {
+      if (!currentProcess.delivered.contains(m)) {
+        breceiver.rdeliver(msg);
+        currentProcess.delivered.add(m);
+      }
+    }
     Debugger.print(1, "Delivered by " + currentProcess);
   }
 
   public void reRbroadcast(Message msg) {
     for (Process p : processes) {
+      // Testing code for robustness
+      // if (new java.util.Random().nextInt(100) == 99) {
+      // continue;
+      // }
+
       RMessage channelMsg = new RMessage();
       channelMsg.setMessageContents(msg.serializeMessage());
       channelMsg.setDestinationIP(p.getIP());
@@ -76,6 +74,5 @@ public class RBroadcast implements ReliableBroadcast {
    */
   public void rblisten(BroadcastReceiver m) {
     this.breceiver = m;
-
   }
 }
