@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public final class Main {
 
   public static void main(String[] args) {
-    test2();
+    test4();
     return;
   }
 
@@ -83,4 +83,49 @@ public final class Main {
       broadcasters.get(0).rbroadcast(m);
     }
   }
+  
+  static public void test4() {
+	    // create processes
+	    ArrayList<Process> processes = new ArrayList<Process>();
+	    processes.add(new Process("127.0.0.1", 3000));
+	    /*	    processes.add(new Process("127.0.0.1", 4000));
+processes.add(new Process("127.0.0.1", 5000));*/
+
+	    ArrayList<ReliableBroadcast> broadcasters = new ArrayList<ReliableBroadcast>();
+	    for (Process p : processes) {
+	      // create reliable broadcast for each process.
+	      FIFOSemanticReliableBroadcast r = new FIFOSemanticReliableBroadcastClass();
+	      r.init(p);
+
+	      BroadcastReceiver receiver = new TestFIFOSrbReceiverClass();
+
+	      for (Process other : processes)
+	        r.addProcess(other);
+
+	      // attach callback
+	      r.rblisten(receiver);
+	      broadcasters.add(r);
+	    }
+
+	    try {
+	      Thread.sleep(1000);
+	    } catch (InterruptedException e) {
+	      e.printStackTrace();
+	    }
+	    /*
+	     * process 1 is broadcasting
+	     */
+	    SrbMessage m = new SrbMessage();
+	    String pid = new Integer(1).toString();
+	    for (int i = 0; i <= 10; i++) {
+	      m.setMessageNumber(i);
+	      m.setContents(new Integer(i).toString());
+	      m.setProcessID(pid);
+	      if (i == 5) {
+	    	  m.makesObsolete(2);
+	    	  m.makesObsolete(3);
+	      }
+	      broadcasters.get(0).rbroadcast(m);
+	    }
+	  }
 }

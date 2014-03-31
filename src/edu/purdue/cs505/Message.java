@@ -9,10 +9,9 @@ import java.io.Serializable;
 public class Message implements Serializable, Comparable {
   int messageNumber; // Message number for FIFO delivery
   String contents; // Message contents
-  String processID; // ID of the process that originally sent this message .
+  String processID; // ID of the process that originally sent this message . 
 
-  // Use <IP> + Ò:Ó + <port>
-
+  // Use <IP> + Ò:Ó + <port> 
   public int getMessageNumber() {
     return messageNumber;
   }
