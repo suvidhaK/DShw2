@@ -28,6 +28,8 @@ public class ReliableChannelReceiverCallbackClass implements
         broadcaster.reRbroadcast(broadcastMsg);
         Message reliableBMsg = Message.deserializeMessage(broadcastMsg
             .getContents());
+        Debugger.print(3, "received Message Id: " + broadcastMsg.processID
+            + " " + broadcastMsg.getMessageNumber());
         broadcaster.breceiver.rdeliver(reliableBMsg);
         deliveredMsgs.add(broadcastMsg);
       } else {
