@@ -64,7 +64,7 @@ public class ReliableBroadcastClass implements ReliableBroadcast {
       channelMsg.setDestinationIP(p.getIP());
       channelMsg.setDestinationPort(p.getPort());
       currentProcChannel.rsend(channelMsg);
-      Debugger.print(2, "Send Message from " + currentProcess.getProcessID()
+      Debugger.print(3, "Send Message from " + currentProcess.getProcessID()
           + " to " + p.getProcessID());
     }
   }

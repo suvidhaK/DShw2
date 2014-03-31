@@ -32,7 +32,7 @@ class ReceiverThread extends Thread {
      */
     try {
       System.out.println(rChannel.getUdpChannel());
-      rChannel.getUdpChannel().setSoTimeout(100);
+      rChannel.getUdpChannel().setSoTimeout(RChannel.timeout);
     } catch (SocketException e1) {
       e1.printStackTrace();
     }
@@ -100,7 +100,7 @@ class ReceiverThread extends Thread {
             ackFailCount++;
           } else {
             Debugger.print(
-                2,
+                4,
                 "Bad msgSeqNum: " + msgSeqNum + " startSeq: "
                     + rChannel.getRecvSeqNo(id) + " MaxSeqNum: "
                     + ((rChannel.getRecvSeqNo(id) + RChannel.bufferLength)));

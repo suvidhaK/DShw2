@@ -13,10 +13,10 @@ public class TestFIFOBroadcastReceiverClass implements BroadcastReceiver {
       Debugger.print(4, "Problem");
 
     } else {
-      if (last == 10000) {
+      if (last == 2 * 50000) {
         Debugger.print(4, "Done");
       }
-      if (last % 2000 == 0)
+      if (last % 1000 == 0)
         Debugger.print(4, "Done till " + last);
       last++;
     }

@@ -44,20 +44,21 @@ class SenderThread extends Thread {
               oos.writeObject(m);
 
               byte[] buf = baos.toByteArray();
-//              DatagramPacket out = new DatagramPacket(buf, buf.length,
-//                  InetAddress.getByName(rChannel.getDestinationIP()),
-//                  rChannel.getDestinationPort());
-              
-            DatagramPacket out = new DatagramPacket(buf, buf.length,
-                  InetAddress.getByName(m.getDestinationIP()), m.getDestinationPort());
-              
+
+              DatagramPacket out = new DatagramPacket(buf, buf.length,
+                  InetAddress.getByName(m.getDestinationIP()),
+                  m.getDestinationPort());
+
               Debugger.print(1, "UDP Send " + m.toString());
-              Debugger.print(3, "UDP Send to " + m.getDestinationIP() + " " + m.getDestinationPort());
+              Debugger.print(
+                  3,
+                  "UDP Send to " + m.getDestinationIP() + " "
+                      + m.getDestinationPort());
               rChannel.getUdpChannel().send(out);
               m.incResndCount();
             }
           } else {
-            //Debugger.print(1, "Nothing to send");
+            // Debugger.print(1, "Nothing to send");
           }
         }
       }

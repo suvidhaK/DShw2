@@ -13,9 +13,9 @@ public class Main3 {
     RChannel senderTest = new RChannel(4000); // Sender
     senderTest.init("", 0);
 
-    RChannel receiverTest = new RChannel(5000); // Receiver
-    receiverTest.init("", 0);
-    receiverTest.rlisten(rcr);
+    // RChannel receiverTest = new RChannel(5000); // Receiver
+    // receiverTest.init("", 0);
+    // receiverTest.rlisten(rcr);
 
     // try {
     // PrintWriter outputStream = new PrintWriter(new FileWriter("random.txt"));
@@ -31,7 +31,8 @@ public class Main3 {
     // e.printStackTrace();
     // }
     // return;
-    test1(senderTest, receiverTest);
+    RChannel receiverTest = null;
+    test2(senderTest, receiverTest);
   }
 
   private static void test1(RChannel sender, RChannel receiver) {
@@ -40,7 +41,7 @@ public class Main3 {
       String l;
       while ((l = input.readLine()) != null) {
         RMessage m = new RMessage(l);
-        m.setDestinationIP("127.0.0.1");
+        m.setDestinationIP("10.184.96.170");
         m.setDestinationPort(5000);
         sender.rsend(m);
       }
@@ -52,11 +53,11 @@ public class Main3 {
 
   private static void test2(RChannel sender, RChannel receiver) {
     int i = 0;
-    while (i < 100001) {
+    while (i < 1000) {
       // sender.setDestinationIP("localhost");
       // sender.setDestinationPort(5000);
       RMessage msg = new RMessage(new String(Integer.toString(i)));
-      msg.setDestinationIP("127.0.0.1");
+      msg.setDestinationIP("10.184.96.170");
       msg.setDestinationPort(5000);
       sender.rsend(msg);
       i++;

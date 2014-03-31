@@ -10,7 +10,7 @@ import java.util.TreeSet;
 public class RChannel implements ReliableChannel {
   protected static int bufferLength = 32;
   protected static int stringLength = 1000;
-  protected static int timeout = 10;
+  protected static int timeout = 500;
 
   protected LinkedList<RMessage> sendBuffer;
   protected TreeSet<RMessage> receiveBuffer;
@@ -64,10 +64,6 @@ public class RChannel implements ReliableChannel {
 
       if (udpChannel == null)
         udpChannel = new DatagramSocket(lPort);
-      // udpChannel = new MulticastSocket(lPort);
-      // udpChannel.setReuseAddress(true);
-      // InetAddress addr = InetAddress.getByName("127.0.0.1");
-      // udpChannel.bind(addr);
       Debugger.print(1, "RChannel started at port: " + lPort);
 
       rThread = new ReceiverThread(this);
